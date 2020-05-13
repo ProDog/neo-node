@@ -65,6 +65,8 @@ namespace Neo.CLI
         protected override string Prompt => "neo";
         public override string ServiceName => "NEO-CLI";
 
+        private Logger logger;
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -369,6 +371,9 @@ namespace Neo.CLI
                         Settings.Initialize(new ConfigurationBuilder().AddJsonFile("config.mainnet.json").Build());
                         break;
                 }
+
+            logger = new Logger();
+
             NeoSystem = new NeoSystem(Settings.Default.Storage.Engine);
 
             foreach (var plugin in Plugin.Plugins)
@@ -417,7 +422,7 @@ namespace Neo.CLI
                 }
                 catch (System.Security.Cryptography.CryptographicException)
                 {
-                    Console.WriteLine($"failed to open file \"{Settings.Default.UnlockWallet.Path}\"");
+                    Console.WriteLine($"Failed to open file \"{Settings.Default.UnlockWallet.Path}\"");
                 }
                 if (Settings.Default.UnlockWallet.StartConsensus && CurrentWallet != null)
                 {
