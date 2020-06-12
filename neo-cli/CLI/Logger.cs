@@ -1,24 +1,24 @@
+using Neo.ConsoleService;
 using Neo.Plugins;
 using System;
-using System.Text;
 using System.IO;
+using System.Text;
 using static System.IO.Path;
-using System.Reflection;
-using Neo.ConsoleService;
 
 namespace Neo.CLI
 {
-    public class Logger : Plugin, ILogPlugin
+    internal class Logger : Plugin, ILogPlugin
     {
+        private static readonly ConsoleColorSet DebugColor = new ConsoleColorSet(ConsoleColor.Cyan);
+        private static readonly ConsoleColorSet InfoColor = new ConsoleColorSet(ConsoleColor.White);
+        private static readonly ConsoleColorSet WarningColor = new ConsoleColorSet(ConsoleColor.Yellow);
+        private static readonly ConsoleColorSet ErrorColor = new ConsoleColorSet(ConsoleColor.Red);
+        private static readonly ConsoleColorSet FatalColor = new ConsoleColorSet(ConsoleColor.Red);
+
         public override string Name => "SystemLog";
-        public override string ConfigFile => Combine(GetDirectoryName(Assembly.GetEntryAssembly().Location), "config.json");
-
-        public bool Started { get; set; }
-
-        public Logger() : base()
-        {
-            Started = Settings.Default.Logger.Started; // default is started to log
-        }
+        public override string Description => "Prints consensus log and is a built-in plugin which cannot be uninstalled";
+        public override string ConfigFile => Combine(GetDirectoryName(Path), "config.json");
+        public override string Path => GetType().Assembly.Location;
 
         private static void GetErrorLogs(StringBuilder sb, Exception ex)
         {
@@ -42,7 +42,7 @@ namespace Neo.CLI
 
         void ILogPlugin.Log(string source, LogLevel level, object message)
         {
-            if (!Started)
+            if (!Settings.Default.Logger.Active)
                 return;
 
             if (message is Exception ex)
@@ -63,11 +63,11 @@ namespace Neo.CLI
 
                     switch (level)
                     {
-                        case LogLevel.Debug: ConsoleColorSet.Debug.Apply(); break;
-                        case LogLevel.Error: ConsoleColorSet.Error.Apply(); break;
-                        case LogLevel.Fatal: ConsoleColorSet.Fatal.Apply(); break;
-                        case LogLevel.Info: ConsoleColorSet.Info.Apply(); break;
-                        case LogLevel.Warning: ConsoleColorSet.Warning.Apply(); break;
+                        case LogLevel.Debug: DebugColor.Apply(); break;
+                        case LogLevel.Error: ErrorColor.Apply(); break;
+                        case LogLevel.Fatal: FatalColor.Apply(); break;
+                        case LogLevel.Info: InfoColor.Apply(); break;
+                        case LogLevel.Warning: WarningColor.Apply(); break;
                     }
 
                     Console.WriteLine(log);

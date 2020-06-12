@@ -1,5 +1,4 @@
 using Akka.Actor;
-using Microsoft.Extensions.Configuration;
 using Neo.ConsoleService;
 using Neo.Cryptography.ECC;
 using Neo.IO;
@@ -64,8 +63,6 @@ namespace Neo.CLI
 
         protected override string Prompt => "neo";
         public override string ServiceName => "NEO-CLI";
-
-        private Logger logger;
 
         /// <summary>
         /// Constructor
@@ -288,20 +285,6 @@ namespace Neo.CLI
                         throw new FormatException($"OpCode not found at {context.InstructionPointer}-{((byte)ci.OpCode).ToString("x2")}");
                     }
 
-                    switch (ci.OpCode)
-                    {
-                        case OpCode.SYSCALL:
-                            {
-                                // Check bad syscalls (NEO2)
-
-                                if (!InteropService.SupportedMethods().Any(u => u.Hash == ci.TokenU32))
-                                {
-                                    throw new FormatException($"Syscall not found {ci.TokenU32.ToString("x2")}. Are you using a NEO2 smartContract?");
-                                }
-                                break;
-                            }
-                    }
-
                     context.InstructionPointer += ci.Size;
                 }
             }
@@ -311,7 +294,7 @@ namespace Neo.CLI
             scriptHash = file.ScriptHash;
             using (ScriptBuilder sb = new ScriptBuilder())
             {
-                sb.EmitSysCall(InteropService.Contract.Create, file.Script, manifest.ToJson().ToString());
+                sb.EmitSysCall(ApplicationEngine.System_Contract_Create, file.Script, manifest.ToJson().ToString());
                 return sb.ToArray();
             }
         }
@@ -358,21 +341,9 @@ namespace Neo.CLI
                     case "--noverify":
                         verifyImport = false;
                         break;
-                    case "/testnet":
-                    case "--testnet":
-                    case "-t":
-                        ProtocolSettings.Initialize(new ConfigurationBuilder().AddJsonFile("protocol.testnet.json").Build());
-                        Settings.Initialize(new ConfigurationBuilder().AddJsonFile("config.testnet.json").Build());
-                        break;
-                    case "/mainnet":
-                    case "--mainnet":
-                    case "-m":
-                        ProtocolSettings.Initialize(new ConfigurationBuilder().AddJsonFile("protocol.mainnet.json").Build());
-                        Settings.Initialize(new ConfigurationBuilder().AddJsonFile("config.mainnet.json").Build());
-                        break;
                 }
 
-            logger = new Logger();
+            _ = new Logger();
 
             NeoSystem = new NeoSystem(Settings.Default.Storage.Engine);
 
@@ -524,7 +495,7 @@ namespace Neo.CLI
                 {
                     Console.WriteLine($"VM State: {engine.State}");
                     Console.WriteLine($"Gas Consumed: {new BigDecimal(engine.GasConsumed, NativeContract.GAS.Decimals)}");
-                    Console.WriteLine($"Evaluation Stack: {new JArray(engine.ResultStack.Select(p => p.ToParameter().ToJson()))}");
+                    Console.WriteLine($"Evaluation Stack: {new JArray(engine.ResultStack.Select(p => p.ToJson()))}");
                     Console.WriteLine();
                     if (engine.State.HasFlag(VMState.FAULT))
                     {
