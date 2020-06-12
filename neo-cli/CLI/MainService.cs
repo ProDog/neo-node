@@ -69,12 +69,14 @@ namespace Neo.CLI
         /// </summary>
         public MainService() : base()
         {
+            RegisterCommandHander<string, long>(false, (str) => long.Parse(str));
+            RegisterCommandHander<string, uint>(false, (str) => uint.Parse(str));
             RegisterCommandHander<string, UInt160>(false, (str) =>
             {
                 switch (str.ToLowerInvariant())
                 {
-                    case "neo": return SmartContract.Native.NativeContract.NEO.Hash;
-                    case "gas": return SmartContract.Native.NativeContract.GAS.Hash;
+                    case "neo": return NativeContract.NEO.Hash;
+                    case "gas": return NativeContract.GAS.Hash;
                 }
 
                 // Try to parse as UInt160
@@ -97,8 +99,8 @@ namespace Neo.CLI
                 {
                     switch (str.ToLowerInvariant())
                     {
-                        case "neo": return SmartContract.Native.NativeContract.NEO.Hash;
-                        case "gas": return SmartContract.Native.NativeContract.GAS.Hash;
+                        case "neo": return NativeContract.NEO.Hash;
+                        case "gas": return NativeContract.GAS.Hash;
                     }
 
                     // Try to parse as UInt160
