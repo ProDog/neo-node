@@ -28,10 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Neo" Version="3.0.0-CI00964" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\..\..\neo_code\neo\src\neo\neo.csproj" />
     <ProjectReference Include="..\Neo.ConsoleService\Neo.ConsoleService.csproj" />
   </ItemGroup>
 

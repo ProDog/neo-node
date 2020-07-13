@@ -154,7 +154,7 @@ namespace Neo.CLI
         {
             var result = OnInvokeWithResult(NativeContract.Policy.Hash, "getFeePerByte", null, null, false);
 
-            Console.WriteLine("Fee per byte: " + result.GetBigInteger());
+            Console.WriteLine("Fee per byte: " + result.GetInteger());
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Neo.CLI
         {
             var result = OnInvokeWithResult(NativeContract.Policy.Hash, "getMaxBlockSize", null, null, false);
 
-            Console.WriteLine("Max block size: " + result.GetBigInteger());
+            Console.WriteLine("Max block size: " + result.GetInteger());
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace Neo.CLI
         {
             var result = OnInvokeWithResult(NativeContract.Policy.Hash, "getMaxTransactionsPerBlock", null, null, false);
 
-            Console.WriteLine("Max block transactions: " + result.GetBigInteger());
+            Console.WriteLine("Max block transactions: " + result.GetInteger());
         }
     }
 }
