@@ -68,6 +68,8 @@ namespace Neo.CLI
         /// </summary>
         public MainService() : base()
         {
+            RegisterCommandHander<string, long>(false, (str) => long.Parse(str));
+            RegisterCommandHander<string, uint>(false, (str) => uint.Parse(str));
             RegisterCommandHander<string, UInt160>(false, (str) =>
             {
                 switch (str.ToLowerInvariant())
