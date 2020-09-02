@@ -5,6 +5,7 @@ using Neo.VM.Types;
 using Neo.Wallets;
 using System;
 using System.Globalization;
+using System.Linq;
 
 namespace Neo.CLI
 {
@@ -16,8 +17,10 @@ namespace Neo.CLI
         /// <param name="tokenHash">Script hash</param>
         /// <param name="to">To</param>
         /// <param name="amount">Ammount</param>
+        /// <param name="from">From</param>
+        /// <param name="signersAccounts">Signer's accounts</param>
         [ConsoleCommand("transfer", Category = "NEP5 Commands")]
-        private void OnTransferCommand(UInt160 tokenHash, UInt160 to, decimal amount)
+        private void OnTransferCommand(UInt160 tokenHash, UInt160 to, decimal amount, UInt160 from = null, UInt160[] signersAccounts = null)
         {
             var asset = new AssetDescriptor(tokenHash);
             var value = BigDecimal.Parse(amount.ToString(CultureInfo.InvariantCulture), asset.Decimals);
@@ -35,11 +38,17 @@ namespace Neo.CLI
                         Value = value,
                         ScriptHash = to
                     }
-                }, from: null);
+                }, from: from, cosigners: signersAccounts?.Select(p => new Signer
+                {
+                    // default access for transfers should be valid only for first invocation
+                    Scopes = WitnessScope.CalledByEntry,
+                    Account = p
+                })
+                .ToArray() ?? new Signer[0]);
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
-                Console.WriteLine("Error: insufficient balance.");
+                Console.WriteLine("Error: " + GetExceptionMessage(e));
                 return;
             }
             if (!ReadUserInput("Relay tx(no|yes)").IsYes())
