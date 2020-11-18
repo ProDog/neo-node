@@ -341,6 +341,8 @@ namespace Neo.CLI
                         break;
                 }
 
+            Plugin.AddService(this);
+
             _ = new Logger();
 
             NeoSystem = new NeoSystem(Settings.Default.Storage.Engine);
